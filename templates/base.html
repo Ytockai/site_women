@@ -31,7 +31,7 @@
 <!-- Sidebar слева -->
 	<td valign="top" class="left-chapters">
 	<ul id="leftchapters">
-		{% if  cat_selected == 0 or cat_selected in None%}
+		{% if  cat_selected == 0 %}
 		<li class="selected">Все категории</li>
 		{%else%}
 		<li><a href="{% url 'home' %}">Все категории</a></li>
@@ -43,6 +43,9 @@
 		</li>
 	</ul>
 </td>
+
+<li>{% show_all_tags %}</li>
+
 <!-- Конец Sidebar'а -->
 <td valign="top" class="content">
 	<!-- Хлебные крошки -->
