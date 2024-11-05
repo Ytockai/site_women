@@ -20,6 +20,8 @@ class Women(models.Model):
     is_published = models.BooleanField(choices=Status.choices, default=True)
     cat = models.ForeignKey('Category', on_delete=models.PROTECT)
     tags = models.ManyToManyField('TagPost', blank=True, related_name='tags')
+    hasbend = models.OneToOneField('Hasbend', on_delete=models.SET_NULL, null=True,
+                                   blank=True, related_name='wumen')
 
 
     objects = models.Manager()
@@ -58,3 +60,11 @@ class TagPost(models.Model):
     
     def get_absolute_url(self):
         return reverse('tag', kwargs={"tag_slug": self.slug})
+    
+
+class Hasbend(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField(null=True)
+
+    def __str__(self):
+        return self.name
