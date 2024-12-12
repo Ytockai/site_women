@@ -17,7 +17,7 @@ class Women(models.Model):
     content = models.TextField(blank=True, verbose_name="Контент")
     time_create = models.DateTimeField(auto_now_add=True, verbose_name="Время создания")
     time_update = models.DateTimeField(auto_now=True, verbose_name="Время редактирования")
-    is_published = is_published = models.BooleanField(choices=tuple(map(lambda x: (bool(x[0]), x[1]), Status.choices)), default=True, verbose_name="Статус")
+    is_published = models.BooleanField(choices=tuple(map(lambda x: (bool(x[0]), x[1]), Status.choices)), default=True, verbose_name="Статус")
     cat = models.ForeignKey('Category', on_delete=models.PROTECT, verbose_name="Катекгория")
     tags = models.ManyToManyField('TagPost', blank=True, related_name='tags', verbose_name="Тег")
     hasbend = models.OneToOneField('Hasbend', on_delete=models.SET_NULL, null=True,
