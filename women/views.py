@@ -1,10 +1,11 @@
+from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.template.loader import render_to_string
 from django.template.defaultfilters import slugify
 
-from .forms import AddPostFroms
+from .forms import AddPostForm
 from .models import Women, Category, TagPost
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
@@ -42,17 +43,19 @@ def show_post(request, post_slug):
 
 
 def addpage(request):
-    if request.method == "POST":
-        form = AddPostFroms(request.POST)
+    if request.method == 'POST':
+        form = AddPostForm(request.POST)
         if form.is_valid():
-            #print(form.cleaned_data)
+            # print(form.cleaned_data)
             try:
                 Women.objects.create(**form.cleaned_data)
-                return redirect("home") 
-            except:
-                form.add_error(None, "Ошибка добавления поста")
+                return redirect('home')
+            except IntegrityError:
+                 form.add_error(None, "Ошибка добавления поста: данные нарушают ограничения")
+            except Exception as e:
+                 form.add_error(None, f"Ошибка добавления поста: {str(e)}")
     else:
-        form = AddPostFroms()
+        form = AddPostForm()
     data = {
         "menu":menu,
         "title": "Добавление статьи",
