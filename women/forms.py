@@ -32,3 +32,7 @@ class AddPostForm(forms.ModelForm):
 		   'content': forms.Textarea(attrs={'cols': 50, 'rows': 5}),
             }
         labels = {'slug': 'URL'}
+
+
+class UpLoadsFileForm(forms.Form):
+	file = forms.FileField(label="Файл")
