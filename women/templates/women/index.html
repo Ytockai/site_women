@@ -7,6 +7,11 @@
 				<div class="article-panel">
 					<p class="first">Категория: {{p.cat.name}}</p>
 					<p class="last">Дата: {{p.time_update|date:"d-m-Y H:i:s"}}</p>
+
+					{% if p.photo %}
+						<p><img class="img-article-left thumb" src="{{p.photo.url}}"></p>
+					{% endif %}
+
 					</div>
 				<h2>{{p.title}}</h2>
     {% autoescape off %}
