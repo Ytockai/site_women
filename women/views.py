@@ -4,6 +4,8 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.template.loader import render_to_string
 from django.template.defaultfilters import slugify
+from django.views import View
+from django.views.generic import TemplateView
 
 from .forms import AddPostForm, UpLoadsFileForm
 from .models import Women, Category, TagPost
@@ -16,15 +18,25 @@ menu = [{'title': "О сайте", 'url_name': 'about'},
 
 
 
-def index(request):
-    posts = Women.published.all().select_related("cat")
-    data = {
-        'title': 'Главная страница',
+# def index(request):
+#     posts = Women.published.all().select_related("cat")
+#     data = {
+#         'title': 'Главная страница',
+#         'menu': menu,
+#         'posts': posts,
+#         'cat_selected': 0,
+#     }
+#     return render(request, 'women/index.html', context=data)
+
+class WomenHome(TemplateView):
+	template_name = 'women/index.html'
+	extra_context = {
+		'title': 'Главная страница',
         'menu': menu,
-        'posts': posts,
+        'posts': Women.published.all().select_related("cat"),
         'cat_selected': 0,
-    }
-    return render(request, 'women/index.html', context=data)
+	}
+
 
 def handle_uploaded_file(f):
     with open(f"uploads/{f.name}", "wb+") as destination:
@@ -52,20 +64,42 @@ def show_post(request, post_slug):
     return render(request, 'women/post.html', data)
 
 
-def addpage(request):
-    if request.method == 'POST':
+# def addpage(request):
+#     if request.method == 'POST':
+#         form = AddPostForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('home')
+#     else:
+#         form = AddPostForm()
+#     data = {
+#         "menu":menu,
+#         "title": "Добавление статьи",
+#         "form": form,
+#     }
+#     return render(request, 'women/addpage.html', data)
+
+
+class AddPage(View):
+    def get(self, request):
+        form = AddPostForm()
+        data = {
+        "menu":menu,
+        "title": "Добавление статьи",
+        "form": form,
+        }
+        return render(request, 'women/addpage.html', data)
+    def post(self, request):
         form = AddPostForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return redirect('home')
-    else:
-        form = AddPostForm()
-    data = {
+        data = {
         "menu":menu,
         "title": "Добавление статьи",
         "form": form,
-    }
-    return render(request, 'women/addpage.html', data)
+        }
+        return render(request, 'women/addpage.html', data)
 
 
 def contact(request):
