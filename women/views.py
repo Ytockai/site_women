@@ -5,7 +5,7 @@ from django.urls import reverse, reverse_lazy
 from django.template.loader import render_to_string
 from django.template.defaultfilters import slugify
 from django.views import View
-from django.views.generic import TemplateView, ListView, DetailView, FormView
+from django.views.generic import TemplateView, CreateView, ListView, DetailView, FormView, UpdateView
 
 from .forms import AddPostForm, UpLoadsFileForm
 from .models import Women, Category, TagPost
@@ -41,7 +41,7 @@ def about(request):
             handle_uploaded_file(form.cleaned_data['file'])
     else:
         form = UpLoadsFileForm()
-    return render(request, 'women/about.html', {'title': 'О сайте', 'form': form})
+    return render(request, 'women/about.html', {'title': 'О сайте', 'form': form, 'menu': menu})
 
 
 class ShowPost(DetailView):
@@ -59,8 +59,18 @@ class ShowPost(DetailView):
         return get_object_or_404(Women.published, slug=self.kwargs[self.slug_url_kwarg])
 
 
-class AddPage(FormView): 
+class AddPage(CreateView): 
     form_class = AddPostForm
+    template_name = 'women/addpage.html'
+    extra_context = {
+		'menu': menu,
+		'title': 'Добавление статьи', 
+	}
+
+
+class UpdatePage(UpdateView):
+    model = Women
+    fields = ['title', 'content', 'photo', 'is_published', 'cat']
     template_name = 'women/addpage.html'
     success_url = reverse_lazy('home')
     extra_context = {
@@ -68,9 +78,7 @@ class AddPage(FormView):
 		'title': 'Добавление статьи', 
 	}
 
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
+
 
 # class AddPage(View):
 #     def get(self, request):
