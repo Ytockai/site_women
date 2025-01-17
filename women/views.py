@@ -7,27 +7,20 @@ from django.template.defaultfilters import slugify
 from django.views import View
 from django.views.generic import TemplateView, CreateView, ListView, DetailView, FormView, UpdateView
 
+from women.utils import DataMixin
+
 from .forms import AddPostForm, UpLoadsFileForm
 from .models import Women, Category, TagPost
 
-menu = [{'title': "О сайте", 'url_name': 'about'},
-        {'title': "Добавить статью", 'url_name': 'add_page'},
-        {'title': "Обратная связь", 'url_name': 'contact'},
-        {'title': "Войти", 'url_name': 'login'}
-]
 
+class WomenHome(DataMixin, ListView):
+    template_name = 'women/index.html'
+    context_object_name = "posts"
+    title_page = 'Главная страница'
+    cat_selected = 0
 
-class WomenHome(ListView):
-	template_name = 'women/index.html'
-	context_object_name = "posts"
-	extra_context = {
-		'title':'Главная страница',
-		'menu': menu,
-		'cat_selected': 0,
-	}
-
-	def get_queryset(self):
-		return Women.published.all().select_related("cat")
+    def get_queryset(self):
+        return Women.published.all().select_related("cat")
 
 def handle_uploaded_file(f):
     with open(f"uploads/{f.name}", "wb+") as destination:
@@ -41,65 +34,33 @@ def about(request):
             handle_uploaded_file(form.cleaned_data['file'])
     else:
         form = UpLoadsFileForm()
-    return render(request, 'women/about.html', {'title': 'О сайте', 'form': form, 'menu': menu})
+    return render(request, 'women/about.html', {'title': 'О сайте', 'form': form})
 
 
-class ShowPost(DetailView):
+class ShowPost(DataMixin, DetailView):
     template_name = 'women/post.html'
     slug_url_kwarg = 'post_slug'
     context_object_name = 'post'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = context['post'].title
-        context['menu'] = menu
-        return context
+        return self.get_mixin_content(context, title=context['post'].title)
 
     def get_object(self, queryset=None):
         return get_object_or_404(Women.published, slug=self.kwargs[self.slug_url_kwarg])
 
 
-class AddPage(CreateView): 
+class AddPage(DataMixin, CreateView): 
     form_class = AddPostForm
     template_name = 'women/addpage.html'
-    extra_context = {
-		'menu': menu,
-		'title': 'Добавление статьи', 
-	}
+    title_page = 'Добавление статьи'
 
-
-class UpdatePage(UpdateView):
+class UpdatePage(DataMixin, UpdateView):
     model = Women
     fields = ['title', 'content', 'photo', 'is_published', 'cat']
     template_name = 'women/addpage.html'
     success_url = reverse_lazy('home')
-    extra_context = {
-		'menu': menu,
-		'title': 'Добавление статьи', 
-	}
-
-
-
-# class AddPage(View):
-#     def get(self, request):
-#         form = AddPostForm()
-#         data = {
-#         "menu":menu,
-#         "title": "Добавление статьи",
-#         "form": form,
-#         }
-#         return render(request, 'women/addpage.html', data)
-#     def post(self, request):
-#         form = AddPostForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('home')
-#         data = {
-#         "menu":menu,
-#         "title": "Добавление статьи",
-#         "form": form,
-#         }
-#         return render(request, 'women/addpage.html', data)
+    title_page = 'Редактирование статьи'
 
 
 def contact(request):
@@ -110,27 +71,25 @@ def login(request):
     return HttpResponse("Авторизация")
 
 
-class WomenCategory(ListView):
-	template_name = 'women/index.html'
-	context_object_name = "posts"
-	allow_empty = False #если нет нужного слага, то выведет ошибку 404
+class WomenCategory(DataMixin, ListView):
+    template_name = 'women/index.html'
+    context_object_name = "posts"
+    allow_empty = False #если нет нужного слага, то выведет ошибку 404
 
-	def get_queryset(self):
-		return Women.published.filter(cat__slug=self.kwargs["cat_slug"]).select_related("cat")
+    def get_queryset(self):
+        return Women.published.filter(cat__slug=self.kwargs["cat_slug"]).select_related("cat")
 
-	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)
-		cat = context['posts'][0].cat
-		context['title'] = 'Категория - ' + cat.name
-		context['menu'] = menu
-		context['cat_selected'] = cat.pk
-		return context
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cat = context['posts'][0].cat
+        return self.get_mixin_content(context, title='Категория - ' + cat.name,
+                                 cat_selected=cat.pk)
 
 def page_not_found(request, exception):
     return HttpResponseNotFound("<h1>Страница не найдена</h1>")
 
 
-class TagPostList(ListView):
+class TagPostList(DataMixin, ListView):
     template_name = 'women/index.html'
     context_object_name = "posts"
     allow_empty = False 
@@ -138,10 +97,7 @@ class TagPostList(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         tag = TagPost.objects.get(slug=self.kwargs['tag_slug'])
-        context['title'] = 'Тег:' + tag.tag
-        context['menu'] = menu
-        context['cat_selected'] = None
-        return context
+        return self.get_mixin_content(context, title='Тег:' + tag.tag)
 
     def get_queryset(self):
         return Women.published.filter(tags__slug=self.kwargs["tag_slug"]).select_related("cat")
