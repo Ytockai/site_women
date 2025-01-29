@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 
@@ -23,6 +24,7 @@ class Women(models.Model):
     tags = models.ManyToManyField('TagPost', blank=True, related_name='tags', verbose_name="Тег")
     hasbend = models.OneToOneField('Hasbend', on_delete=models.SET_NULL, null=True,
                                    blank=True, related_name='wumen', verbose_name="Муж")
+    author = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, related_name='posts', null=True, default=None)
 
 
     objects = models.Manager()
