@@ -23,7 +23,7 @@
 {% if user.is_authenticated %}
 	<form action="{% url 'users:logout' %}" method="post">
 		{% csrf_token %}
-		<li class="last"> {{user.username}} |<button class="asText">Выйти</button></li>
+		<li class="last"><a href="{% url 'users:profile' %}">{{user.username}}</a>|<button class="asText">Выйти</button></li>
 	</form>
 {% else %}
 	<li class="last"><a href="{% url 'users:login' %}">Войти</a>|<a href="{% url 'users:register' %}">Регистрация</a></li>
