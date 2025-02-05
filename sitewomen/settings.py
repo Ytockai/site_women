@@ -143,3 +143,9 @@ AUTHENTICATION_BACKENDS = [
 	"django.contrib.auth.backends.ModelBackend",
 	"users.authentication.EmailAuthBackend",
 ]
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# EMAIL_HOST = '127.0.0.1'
+# EMAIL_PORT = 25
+# EMAIL_USE_TLS = False
+# EMAIL_USE_SSL = False
