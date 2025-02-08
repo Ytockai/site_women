@@ -149,3 +149,5 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # EMAIL_PORT = 25
 # EMAIL_USE_TLS = False
 # EMAIL_USE_SSL = False
+AUTH_USER_MODEL = 'users.User'
+DEFAULT_USER_IMAGE = MEDIA_URL + 'users/default.png'
